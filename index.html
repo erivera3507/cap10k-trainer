@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-slate-950 text-slate-100 lg:h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>The Hill Slayer: Austin Cap10K Trainer</title>
+
+  <!-- PWA / installable app -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#020617">
+  <meta name="mobile-web-app-capable" content="yes">
+  <!-- iOS "Add to Home Screen" -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Hill Slayer">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    h1, h2, h3, .font-heading {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    /* Respect iPhone notch / home indicator when installed full-screen */
+    @supports (padding: max(0px)) {
+      body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      @media (min-width: 1024px) {
+        body { padding-bottom: 0; }
+      }
+    }
+    /* Smooth momentum scrolling on iOS */
+    html, body { -webkit-overflow-scrolling: touch; }
+    /* Prevent long-press text selection callouts on tap targets */
+    button, .cursor-pointer { -webkit-touch-callout: none; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-full antialiased selection:bg-lime-500 selection:text-slate-950 lg:h-full lg:flex lg:flex-col">
+
+  <!-- Main Grid Layout -->
+  <div class="flex flex-col lg:flex-1 lg:flex-row lg:overflow-hidden">
+
+    <!-- Left Navigation & Metrics panel -->
+    <aside class="w-full lg:w-96 bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col shrink-0 lg:overflow-y-auto">
+      <!-- Header -->
+      <div class="p-6 border-b border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="p-2 bg-lime-500/10 text-lime-400 rounded-xl">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <span class="text-xs font-semibold tracking-wider text-lime-400 uppercase">Austin Cap10K Plan</span>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-white">THE HILL SLAYER</h1>
+        <p class="text-xs text-slate-400 mt-1">Saturday-Only Progressive Builder</p>
+      </div>
+
+      <!-- Race Countdown Widget -->
+      <div class="p-6 border-b border-slate-800 bg-slate-900/50">
+        <h3 class="text-xs font-semibold uppercase text-slate-400 tracking-wider mb-3">Countdown to Race Day</h3>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+            <span id="countdown-days" class="block text-xl font-bold text-white">--</span>
+            <span class="text-[10px] text-slate-500 uppercase">Days</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+            <span id="countdown-weeks" class="block text-xl font-bold text-lime-400">--</span>
+            <span class="text-[10px] text-slate-500 uppercase">Saturdays</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+            <span class="block text-xl font-bold text-sky-400">0</span>
+            <span class="text-[10px] text-slate-500 uppercase">Walk Steps</span>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs text-slate-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800/80">
+          <span>Race Date:</span>
+          <span class="font-medium text-white">Sunday, April 11, 2027</span>
+        </div>
+      </div>
+
+      <!-- Live Target Pace Calculator -->
+      <div class="p-6 border-b border-slate-800 bg-slate-900/40">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Dynamic Pace & HR Zones</h3>
+          <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">Based on your Stats</span>
+        </div>
+        
+        <!-- Interactive Stat Modifiers -->
+        <div class="space-y-3 mb-5">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1 flex justify-between">
+              <span>Flat Baseline Run Pace:</span>
+              <span id="label-baseline-pace" class="font-semibold text-lime-400">11:00 /mi</span>
+            </label>
+            <input type="range" id="input-baseline-pace" min="600" max="840" value="660" class="w-full accent-lime-400 bg-slate-950 h-1.5 rounded-lg appearance-none cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1 flex justify-between">
+              <span>Observed Peak HR:</span>
+              <span id="label-peak-hr" class="font-semibold text-rose-500">190 BPM</span>
+            </label>
+            <input type="range" id="input-peak-hr" min="170" max="210" value="190" class="w-full accent-rose-500 bg-slate-950 h-1.5 rounded-lg appearance-none cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Calculated Target Output Card -->
+        <div class="space-y-3">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Easy Base Pace</span>
+              <p id="calc-easy-pace" class="text-sm font-bold text-white">12:30 - 13:00 /mi</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Target HR</span>
+              <p id="calc-easy-hr" class="text-sm font-bold text-sky-400">&lt; 150 BPM</p>
+            </div>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Interval / Hard Pace</span>
+              <p id="calc-hard-pace" class="text-sm font-bold text-white">10:15 - 10:45 /mi</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Target HR</span>
+              <p id="calc-hard-hr" class="text-sm font-bold text-amber-500">165 - 175 BPM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagnostic Insights -->
+      <div class="p-6 mt-auto">
+        <h3 class="text-xs font-semibold uppercase text-slate-400 tracking-wider mb-3">Diagnostic Case Study</h3>
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-[10px] font-semibold bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded">Race Analysis</span>
+            <span class="text-[10px] text-slate-500">April 12 Run</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            On your last Cap10K, your flat segments had you at a <strong>175+ BPM</strong> average, leaving no reserve capacity. When the climbs hit, your heart spiked to <strong>190 BPM</strong>, causing rapid failure. 
+          </p>
+          <div class="text-[11px] text-lime-400 font-medium flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Strategic solution: Saturate aerobic zone 2!
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Interactive Workspace (Schedule & Topography) -->
+    <main class="flex-1 flex flex-col lg:overflow-hidden bg-slate-950">
+
+      <!-- Top Bar: Navigation / Section Toggle -->
+      <div class="sticky top-0 z-30 border-b border-slate-800 bg-slate-900 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+        <div class="flex items-center gap-2 bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+          <button id="btn-show-schedule" class="px-4 py-2 text-xs font-semibold rounded-md bg-lime-500 text-slate-950 transition-all">
+            Interactive Saturday Calendar
+          </button>
+          <button id="btn-show-course" class="px-4 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-all">
+            Cap10K Elevation Guide
+          </button>
+        </div>
+        <div class="flex items-center gap-4">
+          <!-- Total Progress indicator -->
+          <div class="text-right">
+            <span class="text-[10px] text-slate-500 uppercase block font-semibold">Total Completed</span>
+            <span id="completed-stats" class="text-sm font-bold text-white">0 / 46 Weeks (0%)</span>
+          </div>
+          <div class="w-24 bg-slate-800 rounded-full h-2 overflow-hidden">
+            <div id="overall-progress-bar" class="bg-lime-400 h-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Content Panel (Scrollable) -->
+      <section id="panel-schedule" class="flex-1 lg:overflow-y-auto p-6 space-y-8">
+        
+        <!-- Legend/Progress Overview card -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-gradient-to-br from-sky-950/40 to-slate-900 border border-sky-900/30 p-4 rounded-xl">
+            <span class="text-sky-400 text-xs font-bold uppercase tracking-wider block mb-1">Phase 1</span>
+            <span class="text-lg font-heading font-bold text-white">Aerobic Engine</span>
+            <p class="text-[11px] text-slate-400 mt-1">Weeks 1-12. Deeply cultivate flat efficiency.</p>
+          </div>
+          <div class="bg-gradient-to-br from-purple-950/40 to-slate-900 border border-purple-900/30 p-4 rounded-xl">
+            <span class="text-purple-400 text-xs font-bold uppercase tracking-wider block mb-1">Phase 2</span>
+            <span class="text-lg font-heading font-bold text-white">Hill Power</span>
+            <p class="text-[11px] text-slate-400 mt-1">Weeks 13-24. Translating gym power into climbing strength.</p>
+          </div>
+          <div class="bg-gradient-to-br from-amber-950/40 to-slate-900 border border-amber-900/30 p-4 rounded-xl">
+            <span class="text-amber-400 text-xs font-bold uppercase tracking-wider block mb-1">Phase 3</span>
+            <span class="text-lg font-heading font-bold text-white">Course Prep</span>
+            <p class="text-[11px] text-slate-400 mt-1">Weeks 25-36. Run-climb transitions and recovery.</p>
+          </div>
+          <div class="bg-gradient-to-br from-rose-950/40 to-slate-900 border border-rose-900/30 p-4 rounded-xl">
+            <span class="text-rose-400 text-xs font-bold uppercase tracking-wider block mb-1">Phase 4</span>
+            <span class="text-lg font-heading font-bold text-white">Peak & Conquer</span>
+            <p class="text-[11px] text-slate-400 mt-1">Weeks 37-46. Real course tests & race strategy.</p>
+          </div>
+        </div>
+
+        <!-- Realized Workout List Container -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              <span>Saturday Run Calendar</span>
+              <span class="text-xs bg-slate-800 text-slate-400 font-normal px-2 py-0.5 rounded">May 2026 - April 2027</span>
+            </h2>
+            <div class="flex gap-2">
+              <button onclick="window.plannerApp.markAll()" class="text-xs text-lime-400 hover:underline">Mark All Completed</button>
+              <span class="text-slate-600">|</span>
+              <button onclick="window.plannerApp.resetAll()" class="text-xs text-rose-400 hover:underline">Reset All</button>
+            </div>
+          </div>
+
+          <div id="workout-list-container" class="space-y-3">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Course & Topography Panel (Hidden by default) -->
+      <section id="panel-course" class="hidden flex-1 lg:overflow-y-auto p-6 space-y-6">
+        
+        <!-- Header info -->
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+          <h2 class="text-2xl font-bold text-white mb-2">Interactive Course Elevation Profile</h2>
+          <p class="text-sm text-slate-400 leading-relaxed max-w-4xl">
+            The Austin Cap10K features 365+ feet of rolling climbing. Hover over each designated mile marker below to analyze the specific gradient challenges, understand where the "Redline Traps" are located, and review the exact tactics needed to clear them without stopping.
+          </p>
+        </div>
+
+        <!-- Elevation Profile Visualization Map -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-6">Course Gradient & elevation Profile</h3>
+          
+          <!-- Virtual Elevation Curve (Pure SVG) -->
+          <div class="relative w-full bg-slate-950 rounded-xl p-4 border border-slate-800 overflow-hidden">
+            <svg viewBox="0 0 1000 320" class="w-full h-auto overflow-visible">
+              <defs>
+                <linearGradient id="elevationGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#84cc16" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#84cc16" stop-opacity="0.0"/>
+                </linearGradient>
+                <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#38bdf8"/>
+                  <stop offset="30%" stop-color="#eab308"/>
+                  <stop offset="50%" stop-color="#f43f5e"/>
+                  <stop offset="80%" stop-color="#a855f7"/>
+                  <stop offset="100%" stop-color="#84cc16"/>
+                </linearGradient>
+              </defs>
+              
+              <!-- Grid lines -->
+              <line x1="0" y1="280" x2="1000" y2="280" stroke="#1e293b" stroke-width="1" />
+              <line x1="0" y1="200" x2="1000" y2="200" stroke="#1e293b" stroke-width="1" stroke-dasharray="4,4" />
+              <line x1="0" y1="120" x2="1000" y2="120" stroke="#1e293b" stroke-width="1" stroke-dasharray="4,4" />
+              <line x1="0" y1="40" x2="1000" y2="40" stroke="#1e293b" stroke-width="1" />
+
+              <text x="5" y="35" fill="#475569" font-size="10">600 ft</text>
+              <text x="5" y="115" fill="#475569" font-size="10">500 ft</text>
+              <text x="5" y="195" fill="#475569" font-size="10">400 ft</text>
+              <text x="5" y="275" fill="#475569" font-size="10">300 ft</text>
+
+              <!-- Main Area Fill representing Course Elevation (X=0 to 1000 representing 0 to 6.2 miles) -->
+              <path d="M 0 200 
+                       Q 80 180 160 190 
+                       Q 240 120 320 80 
+                       Q 400 60 480 140 
+                       Q 560 150 640 110 
+                       Q 720 70 800 150 
+                       Q 880 170 960 210 
+                       L 1000 200 L 1000 300 L 0 300 Z" fill="url(#elevationGrad)" />
+              
+              <!-- Elevation line -->
+              <path d="M 0 200 
+                       Q 80 180 160 190 
+                       Q 240 120 320 80 
+                       Q 400 60 480 140 
+                       Q 560 150 640 110 
+                       Q 720 70 800 150 
+                       Q 880 170 960 210 
+                       L 1000 200" fill="none" stroke="url(#lineGrad)" stroke-width="4" stroke-linecap="round"/>
+
+              <!-- Interactive Plot Pins/Markers -->
+              <g class="cursor-pointer" onclick="window.plannerApp.showSegmentDetail(1)">
+                <circle cx="160" cy="190" r="8" fill="#38bdf8" stroke="#020617" stroke-width="2"/>
+                <text x="160" y="170" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">Mile 1</text>
+              </g>
+              <g class="cursor-pointer" onclick="window.plannerApp.showSegmentDetail(2)">
+                <circle cx="320" cy="80" r="8" fill="#f43f5e" stroke="#020617" stroke-width="2"/>
+                <text x="320" y="60" fill="#f43f5e" font-size="11" font-weight="bold" text-anchor="middle">Mile 2</text>
+              </g>
+              <g class="cursor-pointer" onclick="window.plannerApp.showSegmentDetail(3)">
+                <circle cx="480" cy="140" r="8" fill="#eab308" stroke="#020617" stroke-width="2"/>
+                <text x="480" y="120" fill="#eab308" font-size="11" font-weight="bold" text-anchor="middle">Mile 3</text>
+              </g>
+              <g class="cursor-pointer" onclick="window.plannerApp.showSegmentDetail(4)">
+                <circle cx="640" cy="110" r="8" fill="#a855f7" stroke="#020617" stroke-width="2"/>
+                <text x="640" y="90" fill="#a855f7" font-size="11" font-weight="bold" text-anchor="middle">Mile 4</text>
+              </g>
+              <g class="cursor-pointer" onclick="window.plannerApp.showSegmentDetail(5)">
+                <circle cx="800" cy="150" r="8" fill="#a855f7" stroke="#020617" stroke-width="2"/>
+                <text x="800" y="130" fill="#a855f7" font-size="11" font-weight="bold" text-anchor="middle">Mile 5</text>
+              </g>
+              <g class="cursor-pointer" onclick="window.plannerApp.showSegmentDetail(6)">
+                <circle cx="960" cy="210" r="8" fill="#84cc16" stroke="#020617" stroke-width="2"/>
+                <text x="960" y="190" fill="#84cc16" font-size="11" font-weight="bold" text-anchor="middle">Finish</text>
+              </g>
+            </svg>
+            <div class="mt-2 text-center text-xs text-slate-500">
+              💡 Interactive Map: Click any Mile Marker dot to inspect Segment Strategies!
+            </div>
+          </div>
+        </div>
+
+        <!-- Segment Info Detail Cards (Toggled by interaction) -->
+        <div id="course-details-section" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Dynamically displayed detail based on user selection -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Detailed Slide-over Modal for Workouts (Injected dynamically) -->
+  <div id="workout-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+      <!-- Modal Header -->
+      <div class="p-6 border-b border-slate-800 flex justify-between items-center shrink-0">
+        <div>
+          <span id="modal-phase" class="text-xs font-bold uppercase tracking-wider text-lime-400">Phase 1</span>
+          <h3 id="modal-week-title" class="text-xl font-bold text-white">Week 1 Workout</h3>
+        </div>
+        <button onclick="window.plannerApp.closeModal()" aria-label="Close workout details" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      
+      <!-- Scrollable content area -->
+      <div class="p-6 space-y-4 overflow-y-auto flex-1">
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-800/80">
+            <span class="text-[9px] text-slate-500 uppercase font-semibold block">Distance</span>
+            <p id="modal-distance" class="text-sm font-bold text-white">3.0 Miles</p>
+          </div>
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-800/80">
+            <span class="text-[9px] text-slate-500 uppercase font-semibold block">Target Pace</span>
+            <p id="modal-pace" class="text-xs font-bold text-lime-400">Calculated...</p>
+          </div>
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-800/80">
+            <span class="text-[9px] text-slate-500 uppercase font-semibold block">Location</span>
+            <p id="modal-location" class="text-xs font-bold text-sky-400 truncate">Mueller Park</p>
+          </div>
+        </div>
+        
+        <!-- Pre-Run Dynamics -->
+        <div class="bg-slate-950 p-3 rounded-xl border border-sky-500/10">
+          <h4 class="text-xs uppercase text-sky-400 font-bold tracking-wider mb-1 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Pre-Run Warm-up Stretches (Dynamic)
+          </h4>
+          <p id="modal-pre-stretches" class="text-xs text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <div>
+          <h4 class="text-xs uppercase text-slate-500 font-bold tracking-wider mb-1">Session Target Strategy</h4>
+          <p id="modal-focus" class="text-xs text-slate-300 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-800/60"></p>
+        </div>
+
+        <!-- Gym Translation & Gym Recovery stretches -->
+        <div class="space-y-3">
+          <div>
+            <h4 class="text-xs uppercase text-slate-500 font-bold tracking-wider mb-1">Strength Gym Translation Tips</h4>
+            <p id="modal-strength-tip" class="text-xs text-slate-300 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-800/60"></p>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-purple-500/10">
+            <h4 class="text-xs uppercase text-purple-400 font-bold tracking-wider mb-1 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Mid-Week Strength Recovery Stretches
+            </h4>
+            <p id="modal-gym-stretches" class="text-xs text-slate-300 leading-relaxed"></p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs uppercase text-slate-500 font-bold tracking-wider mb-1">Your Personal Performance Notes</label>
+          <textarea id="modal-notes" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-lime-400" placeholder="e.g. My average heart rate was 168. Stride felt easy!"></textarea>
+        </div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="p-6 border-t border-slate-800 bg-slate-900/50 flex justify-between gap-3 shrink-0">
+        <button onclick="window.plannerApp.closeModal()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-all">
+          Close
+        </button>
+        <button id="modal-btn-save" class="px-5 py-2 text-xs font-semibold rounded-lg bg-lime-400 text-slate-900 hover:bg-lime-300 transition-all">
+          Save & Mark Completed
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // System Data & Application Structure
+    const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'cap10k-trainer';
+
+    // Actual race day: Sunday, April 11, 2027 (the 2nd Sunday of April).
+    // Training runs are Saturdays, so the final RACE DAY entry uses this real date.
+    const RACE_DATE = new Date('2027-04-11T08:00:00');
+
+    // Exact Course Profiles & Tactical Guide
+    const SEGMENTS = {
+      1: {
+        title: "Mile 1: Congress Avenue Launch",
+        elevation: "Descent followed by Flats (310ft to 290ft)",
+        trap: "The Adrenaline Rush. Running too fast here because you feel incredibly strong on the downhill.",
+        tactic: "Intentionally pull back. Save your energy! Your heart rate must remain well below 160 BPM here."
+      },
+      2: {
+        title: "Mile 2: Clarksville & West 11th",
+        elevation: "Aggressive & Sustained Incline (290ft to 480ft)",
+        trap: "The Wall. Trying to maintain your Mile 1 flat speed over this 190ft sustained climb will spike your HR past 185 and trigger quick failure.",
+        tactic: "Drop your pace by at least 1 minute/mi immediately. Shorten your steps, pump your arms, let your gym strong hamstrings drive you forward, and survive the climb."
+      },
+      3: {
+        title: "Mile 3: Enfield Road Flat Recovery",
+        elevation: "Short Hill crest followed by flat highway transition (480ft to 380ft)",
+        trap: "Pacing Collapse. Failing to establish a steady, easy pace after the heavy climb.",
+        tactic: "Take deep, regular belly breaths to lower your HR from the redline. Glide down the slight descent at 12:00/mi."
+      },
+      4: {
+        title: "Mile 4: Winsted Lane Rolling Terrors",
+        elevation: "Short, sharp rolling mounds (380ft to 460ft)",
+        trap: "Rhythm Destroyer. The constant up-and-down changes force you to shift gears constantly.",
+        tactic: "Keep your strides small on climbs, let gravity carry you down the backs of them. Focus entirely on a constant cadence."
+      },
+      5: {
+        title: "Mile 5: Tarrytown Crossroads",
+        elevation: "Slight drag followed by flat cruise (460ft to 340ft)",
+        trap: "Mental exhaustion. The physical toll of the middle hills sets in, tempting you to walk.",
+        tactic: "Remind yourself that your strength workouts have built enormous endurance. Focus on the next street lamp. Keep shuffling."
+      },
+      6: {
+        title: "Mile 6 to Finish: The Austin Capital Descent",
+        elevation: "Long, fast drop to Congress Ave & State Capitol (340ft to 290ft)",
+        trap: "Overstriding. Leaning too far back and heel-striking hard on the descent, pounding your joints.",
+        tactic: "Slightly lean forward from your ankles, and let your legs cycle quickly. Let the gravity roll carry you into the finish line!"
+      }
+    };
+
+    // Master Saturday Progression Template
+    const PLAN_TEMPLATES = [
+      // Phase 1 (Weeks 1 to 12)
+      { 
+        week: 1, 
+        type: "Easy Base", 
+        paceType: "easy",
+        distance: "3.2 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "Slow and controlled. Do not focus on speed. Keep effort at a 5/10. If you cannot speak out loud in full sentences, slow down.", 
+        strength: "Focus on unilateral leg work in the gym this week (Bulgarian split squats) to build stabilizing strength.",
+        preRunStretches: "5x Leg swings forward-to-back, 10x gentle butt-kicks (walking), 10x ankle circles on each leg to prime critical joint fluid.",
+        gymStretches: "Deep hip flexor Couch Stretch (2 minutes per side) post-workout to release tightness induced by heavy squats."
+      },
+      { 
+        week: 2, 
+        type: "Flat Interval", 
+        paceType: "interval",
+        distance: "3.0 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min easy warmup. Then do 5x reps of: 2 mins hard pace (your fast 11:00 pace), followed by 90 seconds of a very slow walking recovery.", 
+        strength: "Keep gym weights moderate. Focus on high-quality calf and ankle mobility to support fast leg turnover.",
+        preRunStretches: "15x calf scoops (step heel forward and scoop arms), 10x high-knees to activate hip flexors for high stride velocity.",
+        gymStretches: "Downward dog calf stretch against the wall. Focus on extending knee first, then slightly flexing knee to stretch the deep soleus muscle."
+      },
+      { 
+        week: 3, 
+        type: "Easy Base", 
+        paceType: "easy",
+        distance: "3.5 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "Continuous flat run. Maintain an average pace of around 12:30/mi. Let your heart rate settle down into an efficient, sustainable rhythm.", 
+        strength: "Implement hamstring curls and glute bridges in your workouts to reinforce back-chain stability.",
+        preRunStretches: "5x standing side-to-side lateral leg swings, 10x walking glute pulls to gently stretch glutes dynamic style.",
+        gymStretches: "Pigeon Stretch (90-second hold per side) immediately following heavy squats to relieve tension on your external hip rotators."
+      },
+      { 
+        week: 4, 
+        type: "Flat Interval", 
+        paceType: "interval",
+        distance: "3.2 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min easy warmup. 6x repetitions of: 2 mins hard pace, followed by 90 seconds walking recovery. Maintain a cadence around 155 SPM.", 
+        strength: "Deadlift day at the gym: prioritize slow, controlled descents to build eccentrically resilient leg fibers.",
+        preRunStretches: "10x dynamic hamstring hip hinges (A-skips or lateral bounds if feeling loose) to prepare legs for sudden transitions.",
+        gymStretches: "Seated hamstring stretch using a resistance band. Gently pull toes towards you to relieve structural ankle and neural stiffness."
+      },
+      { 
+        week: 5, 
+        type: "Easy Base", 
+        paceType: "easy",
+        distance: "3.8 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "Slow conversational endurance run. Challenge yourself to cover the whole distance without stopping, even if you are jogging incredibly slow.", 
+        strength: "Add calf raises and soleus muscle conditioning to avoid shin splints.",
+        preRunStretches: "15x standing calf scoops, 10x standing quad pulls (1-sec hold each side) to dynamically mobilize quads.",
+        gymStretches: "Cossack Squats (slowly shifting side to side) for 10 reps per side to stretch tight groins and widen squat path."
+      },
+      { 
+        week: 6, 
+        type: "Flat Interval", 
+        paceType: "interval",
+        distance: "3.5 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min warmup. 4x reps of: 3 mins hard pace, followed by 2 mins walking recovery. Focus on breathing deeply to drop HR fast on the breaks.", 
+        strength: "Unilateral leg press: build deep hip flexor power to make climbing easier.",
+        preRunStretches: "10x dynamic arm swings (chest expansion), 10x marching dynamic hamstring extensions to warm leg back chain.",
+        gymStretches: "Standing calf stretch against a sturdy weight rack, bending the knee deeply to target soleus under loaded strain."
+      },
+      { 
+        week: 7, 
+        type: "Easy Base", 
+        paceType: "easy",
+        distance: "4.0 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "Long flat milestone! Maintain a 12:45/mi pace. Your cardiorespiratory system is starting to develop real stamina.", 
+        strength: "Focus on core stability: planks and bird-dogs will help you maintain upright running posture when tired.",
+        preRunStretches: "5x dynamic toy soldiers (leg kick straight out to opposite hand), 10x quick ankle circles, 10x gate openers.",
+        gymStretches: "Wall-assisted lunge hold (30 seconds per side) to stretch hip flexors while keeping core and ribcage braced tightly down."
+      },
+      { 
+        week: 8, 
+        type: "Threshold Interval", 
+        paceType: "threshold",
+        distance: "3.5 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min warmup. 3x reps of: 4 mins steady strong (Effort 7/10), followed by 2 mins slow walking recovery.", 
+        strength: "Focus on explosive goblet squats in the gym to build muscle fiber recruitment.",
+        preRunStretches: "10x lateral bounds to fire stabilizing outer glutes (gluteus medius), 10x dynamic calf scoops.",
+        gymStretches: "Adductor Rock-backs (kneeling on one knee, other leg extended laterally) to release tight inner thighs that restrict running stride."
+      },
+      { 
+        week: 9, 
+        type: "Easy Base", 
+        paceType: "easy",
+        distance: "4.2 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "Continuous flat cruise. Pay close attention to your posture. Keep your arms relaxed and swing them straight forward, not cross-body.", 
+        strength: "Add single-leg calf raises to your weekly routine to secure your Achilles tendons.",
+        preRunStretches: "12x dynamic walking lunges (no weight), 10x butt-kicks, 5x torso twists to release core and lower back.",
+        gymStretches: "Seated twist stretch to loosen lumbar and thoracic spine after heavy deadlifting or weighted loading."
+      },
+      { 
+        week: 10, 
+        type: "Threshold Interval", 
+        paceType: "threshold",
+        distance: "3.8 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min warmup. 3x reps of: 5 mins steady strong, 2 mins easy recovery. Focus on maintaining a smooth, even pace.", 
+        strength: "Step-ups onto a box with light dumbbells: mimicking the dynamic step of a hill climb.",
+        preRunStretches: "15x calf scoops, 10x dynamic high-knees, 5x leg swings each plane to fully unlock hip sockets.",
+        gymStretches: "Kneeling quad stretch with back foot resting up on a bench or wall. Deeply opens the quadriceps to reduce knee-joint stress."
+      },
+      { 
+        week: 11, 
+        type: "Easy Base", 
+        paceType: "easy",
+        distance: "4.5 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "Your longest flat run yet! Maintain an ultra-slow, comfortable pace. Build the physiological buffer your heart desperately needs.", 
+        strength: "Focus on recovery in the gym: light weights, deep mobility stretches, and foam rolling.",
+        preRunStretches: "10x easy lateral leg swings, 10x glute pulls, 10x torso rotations to establish a relaxed structural flow.",
+        gymStretches: "Child's Pose (2-minute hold) to fully decompress the spine and lower back following the week's deadlifting."
+      },
+      { 
+        week: 12, 
+        type: "Threshold Interval", 
+        paceType: "threshold",
+        distance: "4.0 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min warmup. 4x reps of: 4 mins steady strong, 2 mins recovery. Finish with a 5-min cool down.", 
+        strength: "Weighted lunges in all planes of motion (front, side, reverse) to condition hip joints.",
+        preRunStretches: "12x dynamic knee hugs, 10x high kicks, 12x ankle rolls to prepare ligaments for threshold velocities.",
+        gymStretches: "Butterfly stretch for groin release. Gently apply pressure with elbows to expand lateral squat depth."
+      },
+
+      // Phase 2 (Weeks 13 to 24)
+      { 
+        week: 13, 
+        type: "Rolling Base", 
+        paceType: "rolling",
+        distance: "4.0 Miles", 
+        location: "Lady Bird Lake Trail", 
+        focus: "Mostly flat loop using bridge crossings (Pfluger / Lamar) to introduce minor climbs. Maintain steady effort, not speed.", 
+        strength: "Build strong quads: incorporate leg extensions and deep squats to withstand downhill impact.",
+        preRunStretches: "10x marching high knees, 10x calf scoops, 5x dynamic walking lunges to prepare the lower limbs for bridge grades.",
+        gymStretches: "Pigeon Stretch on a box or bench. Using a higher surface allows a deeper, more targeted glute stretch."
+      },
+      { 
+        week: 14, 
+        type: "Hill Repeats", 
+        paceType: "hard",
+        distance: "3.0 Miles total", 
+        location: "Pease Park Incline", 
+        focus: "10-min warmup. Find a steady hill. Run up for 45 seconds focusing on driving arms. Walk down slowly to reset HR. Repeat 6 times.", 
+        strength: "Plyometric step jumps or box jumps will teach your muscles to absorb and deliver spring energy.",
+        preRunStretches: "15x calf scoops, 12x walking high knees, 10x butt-kicks to prep calves/Achilles for continuous uphill extension.",
+        gymStretches: "Wall-facing ankle dorsiflexion stretch. Keep heel on the ground while driving knee forward to touch the wall."
+      },
+      { 
+        week: 15, 
+        type: "Rolling Base", 
+        paceType: "rolling",
+        distance: "4.2 Miles", 
+        location: "Lady Bird Lake Trail", 
+        focus: "Use the undulations of the Trail boardwalk or loop bridges. Slow down on climbs; do not fight gravity.", 
+        strength: "Work on back strength: rows and lat pulldowns help maintain lung capacity and upright posture.",
+        preRunStretches: "10x standing quad pulls, 10x dynamic ham hinges, 5x lateral leg swings to release hip barriers before rolling paths.",
+        gymStretches: "Couch stretch with a glute squeeze. Actively squeezing the glute of the trailing leg will amplify the hip flexor release."
+      },
+      { 
+        week: 16, 
+        type: "Hill Repeats", 
+        paceType: "hard",
+        distance: "3.2 Miles total", 
+        location: "Pease Park Incline", 
+        focus: "10-min warmup. Run up the incline for 45 seconds at steady effort. Walk back down. Repeat 8 times.", 
+        strength: "Focus on ankle mobility to ensure full range of motion during steep ascents.",
+        preRunStretches: "15x soleus stretches (bent-knee calf scoops), 10x dynamic dynamic lunges, 10x high knees to unlock running power.",
+        gymStretches: "Deep bodyweight Squat Hold (60 seconds) holding a post or rack to let your hips and Achilles sit in deep, relaxed dorsiflexion."
+      },
+      { 
+        week: 17, 
+        type: "Rolling Base", 
+        paceType: "rolling",
+        distance: "4.5 Miles", 
+        location: "Lady Bird Lake Trail", 
+        focus: "Focus on pacing discipline: use the flats to recover, keeping your breathing balanced.", 
+        strength: "Incorporate kettlebell swings to build powerful hips and glutes.",
+        preRunStretches: "5x torso rotations, 10x ankle rolls, 10x lateral bounds to establish stable lateral control around standard trail bumps.",
+        gymStretches: "Seated hamstring stretch with a strap, rotating foot inward and outward to target all fibers of the hamstring complex."
+      },
+      { 
+        week: 18, 
+        type: "Hill Repeats", 
+        paceType: "hard",
+        distance: "3.5 Miles total", 
+        location: "Pease Park Incline", 
+        focus: "10-min warmup. Run up for 50 seconds at steady effort. Walk down slowly. Repeat 8 times.", 
+        strength: "Incorporate hamstring-focused deadlifts to protect knees against steep descents.",
+        preRunStretches: "12x high knees, 12x walking butt-kicks, 15x dynamic calf sweeps to make structural tissues elastic for steep slopes.",
+        gymStretches: "Standing calf stretch against a wall with a completely straight back leg to target the gastrocnemius muscle."
+      },
+      { 
+        week: 19, 
+        type: "Rolling Base", 
+        paceType: "rolling",
+        distance: "4.8 Miles", 
+        location: "Lady Bird Lake Trail", 
+        focus: "Slightly longer run on the trail. Walk the bridges if your heart rate spikes above 175 BPM.", 
+        strength: "Heavy goblet squats (low reps, high weight) to continue building raw muscle volume.",
+        preRunStretches: "10x dynamic hip circles, 10x toy soldiers, 10x glute dynamic pulls to ensure full, relaxed pelvic rotation.",
+        gymStretches: "Frog stretch (kneeling, hips wide, rocking back) to release tight hip adductors after deep squatting cycles."
+      },
+      { 
+        week: 20, 
+        type: "Extended Hills", 
+        paceType: "hard",
+        distance: "3.5 Miles total", 
+        location: "Scenic Drive Incline", 
+        focus: "10-min warmup. Find a longer hill. Run up at steady effort for 60 seconds. Walk down to fully reset. Repeat 6 times.", 
+        strength: "Ensure you are stretching your calves and IT bands diligently after your gym sessions.",
+        preRunStretches: "15x calf scoops, 10x walking lunges with an overhead reach to stretch entire anterior chain dynamically.",
+        gymStretches: "IT band wall stretch. Cross one leg behind the other, leaning hip towards the wall to release lateral tension."
+      },
+      { 
+        week: 21, 
+        type: "Rolling Base", 
+        paceType: "rolling",
+        distance: "5.0 Miles", 
+        location: "Lady Bird Lake Trail", 
+        focus: "Huge milestone: 5 rolling miles! Run slow, relax your shoulders, and embrace the rhythm of the trail.", 
+        strength: "Core focus: hanging leg raises and side planks to prevent mid-run lower back fatigue.",
+        preRunStretches: "10x leg swings front-to-back, 10x leg swings side-to-side, 10x quick dynamic ankle flexes.",
+        gymStretches: "Couch stretch (2 mins each side). Focus on maintaining a flat pelvis (no anterior tilt) to isolate deep psoas."
+      },
+      { 
+        week: 22, 
+        type: "Extended Hills", 
+        paceType: "hard",
+        distance: "3.8 Miles total", 
+        location: "Scenic Drive Incline", 
+        focus: "10-min warmup. Run up for 60 seconds at steady effort. Walk down to recover. Repeat 8 times.", 
+        strength: "Focus on unilateral movements (single leg squats) to identify and correct leg strength imbalances.",
+        preRunStretches: "15x calf scoops, 12x high knees, 10x marching butt-kicks to prep lower kinetic chain for long, fatiguing inclines.",
+        gymStretches: "Single-leg hamstring stretch using a heavy band, actively driving opposite leg flat against the floor."
+      },
+      { 
+        week: 23, 
+        type: "Rolling Base", 
+        paceType: "rolling",
+        distance: "5.2 Miles", 
+        location: "Lady Bird Lake Trail", 
+        focus: "Continuous endurance. The rolling elevations of the bridges should start to feel natural.", 
+        strength: "Prioritize sleep and high-protein nutrition to repair muscle fibers.",
+        preRunStretches: "10x dynamic quad pulls, 10x dynamic knee hugs, 10x dynamic calf sweeps to preserve easy kinetic mobility.",
+        gymStretches: "Glute-focused pigeon pose on floor, folding torso forward over front knee to release deep hip capsule."
+      },
+      { 
+        week: 24, 
+        type: "Extended Hills", 
+        paceType: "hard",
+        distance: "4.0 Miles total", 
+        location: "Scenic Drive Incline", 
+        focus: "10-min warmup. Run up for 60 seconds. Walk down. Repeat 10 times. Focus on perfect high-knee form.", 
+        strength: "Transition gym work toward power-endurance: higher rep ranges (12-15) with medium load.",
+        preRunStretches: "15x calf sweeps, 10x single-leg dynamic hinges, 10x power high knees to maximize fast muscle fiber prep.",
+        gymStretches: "Wall-assisted soleus stretch (bent-knee) with foot elevated on a small block to stretch deep Achilles fibers."
+      },
+
+      // Phase 3 (Weeks 25 to 36)
+      { 
+        week: 25, 
+        type: "Undulating Base", 
+        paceType: "rolling",
+        distance: "4.5 Miles", 
+        location: "Tarrytown Neighborhood", 
+        focus: "Rolling neighborhood hills. Remember: drop your pace by 45-60 secs/mi when climbing. Do not force flat speed.", 
+        strength: "Build durable calves to act as shock absorbers on downhills.",
+        preRunStretches: "12x walking dynamic lunges, 12x dynamic calf scoops, 10x high knees to activate quads/calves for undulating terrain.",
+        gymStretches: "Couch stretch with hand reached overhead and bent away from back leg to target deep psoas and abdominal wall."
+      },
+      { 
+        week: 26, 
+        type: "Capacity Intervals", 
+        paceType: "threshold",
+        distance: "3.8 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min warmup. 3x reps of: 6 mins at strong tempo pace, with 3 mins of slow walking recovery.", 
+        strength: "Perform leg extensions to target the quadriceps directly, safeguarding knees.",
+        preRunStretches: "10x quick dynamic toe taps, 10x leg swings, 10x dynamic high knees to wake up cardiac and neuromuscular pathways.",
+        gymStretches: "Standing quadriceps stretch, actively tucking pelvis under to fully target Rectus Femoris."
+      },
+      { 
+        week: 27, 
+        type: "Undulating Base", 
+        paceType: "rolling",
+        distance: "4.8 Miles", 
+        location: "Tarrytown Neighborhood", 
+        focus: "Constant, gentle undulations. Practice quick recovery on the flat segments.", 
+        strength: "Implement lateral movements (side lunges) in your training to build hip stability.",
+        preRunStretches: "10x lateral bounds, 10x hip dynamic gate openers, 12x calf scoops to prime stabilizer muscles.",
+        gymStretches: "Inner thigh frog stretch, pulsing hips backward and forward to release structural adductor walls."
+      },
+      { 
+        week: 28, 
+        type: "Capacity Intervals", 
+        paceType: "threshold",
+        distance: "4.0 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min warmup. 4x reps of: 5 mins strong tempo, with 2.5 mins of slow walking recovery.", 
+        strength: "Single-leg Roman deadlifts: vital for protecting hamstrings during rapid downhill running.",
+        preRunStretches: "10x fast leg swings, 10x A-skips (skipping with dynamic knee drive), 15x dynamic calf sweeps.",
+        gymStretches: "Seated hamstring stretch on floor, keeping spine totally flat to avoid rounding lower back."
+      },
+      { 
+        week: 29, 
+        type: "Undulating Base", 
+        paceType: "rolling",
+        distance: "5.0 Miles", 
+        location: "Tarrytown Neighborhood", 
+        focus: "A continuous 5-mile run over undulating hills. Maintain your breath control throughout.", 
+        strength: "Reinforce pelvic control with weighted glute bridges.",
+        preRunStretches: "12x marching dynamic knees, 12x butt-kicks, 10x hip circles to ensure fluid motion for deep climbing blocks.",
+        gymStretches: "Wide-stance sumo squat hold (30 seconds) using a heavy kettlebell as counter-balance to stretch groins."
+      },
+      { 
+        week: 30, 
+        type: "Capacity Intervals", 
+        paceType: "threshold",
+        distance: "4.2 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min warmup. 3x reps of: 7 mins at strong tempo, with 3 mins of walking recovery.", 
+        strength: "Focus on upper back stability in the gym to keep lungs expanded while fatigued.",
+        preRunStretches: "10x dynamic calf scoops, 10x dynamic arm hugs, 10x marching hamstring swings.",
+        gymStretches: "Wall chest stretch. Open your chest and pecs to release standard rounding posture."
+      },
+      { 
+        week: 31, 
+        type: "Hilly Endurance", 
+        paceType: "rolling",
+        distance: "5.0 Miles", 
+        location: "Clarksville Route", 
+        focus: "Sustained, rolling route. Work on leaning slightly forward from the ankles on climbs.", 
+        strength: "Ensure maximum hydration and electrolyte replenishment during your workouts.",
+        preRunStretches: "12x high knee pulls (dynamic), 12x calf scoops, 5x dynamic walk lunges to prepare for the heavy Enfield simulation.",
+        gymStretches: "Couch stretch (2 mins each side) combined with single-leg foam rolling on tight quadriceps blocks."
+      },
+      { 
+        week: 32, 
+        type: "Enfield Intervals", 
+        paceType: "hard",
+        distance: "3.8 Miles total", 
+        location: "Enfield Road Climb", 
+        focus: "Warm up well. Run 2-min sustained segments up Enfield Road at a moderate, controlled effort. Walk down. Repeat 4 times.", 
+        strength: "Gym Focus: explosive leg presses to build uphill thrust.",
+        preRunStretches: "15x calf sweeps, 10x power dynamic high knees, 10x single-leg dynamic hip flexes to unlock maximum climb stride.",
+        gymStretches: "Ankle mobilization using a heavy resistance band tied to a rack. Drive knee forward over toes to manually release joint friction."
+      },
+      { 
+        week: 33, 
+        type: "Hilly Endurance", 
+        paceType: "rolling",
+        distance: "5.2 Miles", 
+        location: "Clarksville Route", 
+        focus: "Run at an ultra-conservative speed. Learn to love the slow glide over hills.", 
+        strength: "Calf and soleus raises: essential to prevent Achilles strain on steep streets.",
+        preRunStretches: "10x standing quad pulls, 10x lateral hip swings, 12x walking calf scoop sweeps.",
+        gymStretches: "Seated glute stretch (ankle crossed over opposite knee) to relieve lateral hip strain caused by continuous climbs."
+      },
+      { 
+        week: 34, 
+        type: "Enfield Intervals", 
+        paceType: "hard",
+        distance: "4.0 Miles total", 
+        location: "Enfield Road Climb", 
+        focus: "Warm up well. Run 2-min sustained segments up Enfield Road. Walk down. Repeat 5 times.", 
+        strength: "Reinforce hamstring elasticity to build durability.",
+        preRunStretches: "15x calf sweeps, 12x walking butt-kicks, 10x high A-skips to prepare lower limbs for continuous incline strain.",
+        gymStretches: "Deep knee-flexed wall calf stretch (soleus focus) to release the intense load from Enfield climbs."
+      },
+      { 
+        week: 35, 
+        type: "Hilly Endurance", 
+        paceType: "rolling",
+        distance: "5.5 Miles", 
+        location: "Clarksville Route", 
+        focus: "Your longest undulating run of Phase 3! Pacing is everything. If you feel tired, slow down.", 
+        strength: "Focus on functional balance: single-leg Bosu ball stands to protect ankles.",
+        preRunStretches: "12x dynamic dynamic lunges, 12x calf sweeps, 10x torso rotations to establish physical alignment before long run.",
+        gymStretches: "Pigeon stretch (90 seconds per side) and a foam roll cycle targeting your lateral quadriceps (Vastus Lateralis)."
+      },
+      { 
+        week: 36, 
+        type: "Enfield Intervals", 
+        paceType: "hard",
+        distance: "4.2 Miles total", 
+        location: "Enfield Road Climb", 
+        focus: "Warm up well. Run 2-min sustained segments up Enfield Road. Walk down. Repeat 6 times.", 
+        strength: "Lighten gym resistance; shift emphasis towards full-range flexibility.",
+        preRunStretches: "15x calf scoops, 12x high knees, 10x fast leg swings to activate neuromuscular pathways for final incline session.",
+        gymStretches: "Couch stretch with a block under the front knee to intensify dynamic range in the trailing hip capsule."
+      },
+
+      // Phase 4 (Weeks 37 to 46)
+      { 
+        week: 37, 
+        type: "Flat Cruise", 
+        paceType: "easy",
+        distance: "5.5 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "A continuous flat run to remind your legs how to cruise effortlessly over long distances.", 
+        strength: "Incorporate light weights in the gym to maintain core posture without adding fatigue.",
+        preRunStretches: "10x leg swings, 10x ankle rolls, 10x gentle walking dynamic pulls.",
+        gymStretches: "Standard hamstring release with dynamic band pull-ups, keeping opposite foot flexed down."
+      },
+      { 
+        week: 38, 
+        type: "Race Simulation", 
+        paceType: "race",
+        distance: "5.0 Miles", 
+        location: "Actual Course (Start-Mile 5)", 
+        focus: "Run the first 5 miles of the actual course. Go intentionally slow on the hills. Walk only if strictly necessary.", 
+        strength: "Focus on dynamic hamstring stretching and foam rolling.",
+        preRunStretches: "12x calf sweeps, 10x dynamic high-knees, 10x gate openers to prepare mind and body for the actual course terrain.",
+        gymStretches: "Foam roll your glutes, calves, and quads immediately post-strength workouts to reduce myofascial restriction."
+      },
+      { 
+        week: 39, 
+        type: "Sharpening Run", 
+        paceType: "threshold",
+        distance: "4.0 Miles total", 
+        location: "Mueller Lake Park", 
+        focus: "10-min warmup. 4x reps of: 3 mins strong, 2 mins easy recovery. Keep your legs feeling snappy.", 
+        strength: "Gym workout: maintain lifting patterns but decrease volume by 30%.",
+        preRunStretches: "10x snappy high-knees, 10x dynamic hamstring hinges, 10x dynamic arm swings.",
+        gymStretches: "Kneeling dynamic hip flexor rocks (rocking forward and backward 15 times) to preserve loose hip sockets."
+      },
+      { 
+        week: 40, 
+        type: "The Peak Run", 
+        paceType: "race",
+        distance: "6.0 Miles", 
+        location: "Hilly Route", 
+        focus: "Your longest, most challenging hilly run! Run at a highly conservative pace. Do not stop moving.", 
+        strength: "Keep the gym session light. Focus heavily on stretching, hip mobility, and hydration.",
+        preRunStretches: "15x calf scoops, 12x walking dynamic lunges, 10x dynamic quad pulls to optimize full leg movement.",
+        gymStretches: "Pigeon Pose (2-minute hold) and the Couch Stretch to ensure zero residual tightness heading into taper."
+      },
+      { 
+        week: 41, 
+        type: "Taper Run 1", 
+        paceType: "taper",
+        distance: "4.0 Miles", 
+        location: "Lady Bird Lake Trail", 
+        focus: "Lowering volume to let your legs shed deep muscle fatigue. Flat, easy, and pleasant.", 
+        strength: "Cut gym weight loads by 50%. Focus on dynamic mobility and basic warmups.",
+        preRunStretches: "10x gentle dynamic leg swings, 10x slow high-knees, 10x ankle circles.",
+        gymStretches: "Thoracic spine extension over a foam roller (15 reps) to open chest and promote easy breathing."
+      },
+      { 
+        week: 42, 
+        type: "Taper Run 2", 
+        paceType: "taper",
+        distance: "2.5 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "A very short, easy jog just to keep the legs moving. Completely relaxed. Focus on breathing.", 
+        strength: "No heavy lifting this week. Simple mobility and bodyweight core exercises only.",
+        preRunStretches: "8x walking butt-kicks, 8x gentle walking dynamic pulls, 8x ankle rolls.",
+        gymStretches: "Restorative deep squat hold (1 minute) to naturally expand hip and groin tissues."
+      },
+      { 
+        week: 43, 
+        type: "Taper Run 3", 
+        paceType: "taper",
+        distance: "2.0 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "Very gentle flat shakeout jog. Ensure you feel completely recovered and loose.", 
+        strength: "Stretching and foam rolling only. Prioritize deep sleep.",
+        preRunStretches: "8x easy leg swings forward and back, 10x slow dynamic hamstring hinges.",
+        gymStretches: "Lie flat on your back, pulling both knees to chest (Wind Relieving Pose) to align lower back."
+      },
+      { 
+        week: 44, 
+        type: "Taper Run 4", 
+        paceType: "taper",
+        distance: "1.5 Miles", 
+        location: "Mueller Lake Park", 
+        focus: "Short active recovery. Just a gentle stroll/jog. Focus on visualising the race.", 
+        strength: "Prioritize hydration. Rest completely.",
+        preRunStretches: "5x dynamic calf sweeps, 5x ankle circles on each leg to preserve joint mobility.",
+        gymStretches: "Calf and hamstring foam roll cycle. Stay relaxed; avoid applying excessive localized pressure."
+      },
+      { 
+        week: 45, 
+        type: "Taper Run 5", 
+        paceType: "taper",
+        distance: "1.0 Mile", 
+        location: "Near Hotel/Home", 
+        focus: "Brief shakeout to settle race eve nerves. Get ready to conquer the hills!", 
+        strength: "No exercise. Eat a clean, carb-focused dinner.",
+        preRunStretches: "5x dynamic hip hinges, 5x easy calf sweeps just to maintain loose structural form.",
+        gymStretches: "Light, restorative legs-up-the-wall pose (5 minutes) to drain residual lower limb fatigue."
+      },
+      { 
+        week: 46, 
+        type: "RACE DAY", 
+        paceType: "race",
+        distance: "6.2 Miles", 
+        location: "Cap10K Course", 
+        focus: "Cross the finish line without a single walking step! Stay slow on Congress and steady on Enfield.", 
+        strength: "Post-race recovery: celebrate, stretch, hydrate, and rest your strong legs!",
+        preRunStretches: "15x calf scoops, 10x dynamic walking lunges, 10x high knees. Line up loose, slow, and completely confident!",
+        gymStretches: "You did it! Post-race: gentle walks, restorative light foam rolling, and deep sleep."
+      }
+    ];
+
+    // State Manager Class
+    class PlannerApp {
+      constructor() {
+        this.saturdays = [];
+        this.completedWeeks = new Set();
+        this.userNotes = {};
+        this.currentSelectedSegment = 2; // Default to Mile 2 (Enfield)
+        
+        this.init();
+      }
+
+      init() {
+        this.generateSaturdayDates();
+        this.loadFromLocalStorage();
+        this.registerEventListeners();
+        this.renderSchedule();
+        this.renderCourseDetails();
+        this.updateCountdown();
+        this.updateProgress();
+        this.updateCalculatedZones();
+      }
+
+      generateSaturdayDates() {
+        // May 29, 2026 is Friday. Next Saturday is May 30, 2026.
+        let currentDate = new Date('2026-05-30T09:00:00'); 
+        
+        this.saturdays = PLAN_TEMPLATES.map((item) => {
+          // Race Day falls on the actual Sunday race date, not the following Saturday.
+          const dateObj = item.type === 'RACE DAY' ? RACE_DATE : currentDate;
+          const dateStr = dateObj.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
+          // Increment by 7 days
+          currentDate.setDate(currentDate.getDate() + 7);
+          return {
+            ...item,
+            dateString: dateStr
+          };
+        });
+      }
+
+      loadFromLocalStorage() {
+        try {
+          const savedCompleted = localStorage.getItem(`${APP_ID}-completed`);
+          const savedNotes = localStorage.getItem(`${APP_ID}-notes`);
+          
+          if (savedCompleted) {
+            this.completedWeeks = new Set(JSON.parse(savedCompleted));
+          }
+          if (savedNotes) {
+            this.userNotes = JSON.parse(savedNotes);
+          }
+        } catch (e) {
+          console.error("Local storage error:", e);
+        }
+      }
+
+      saveToLocalStorage() {
+        try {
+          localStorage.setItem(`${APP_ID}-completed`, JSON.stringify([...this.completedWeeks]));
+          localStorage.setItem(`${APP_ID}-notes`, JSON.stringify(this.userNotes));
+        } catch (e) {
+          console.error("Local storage write error:", e);
+        }
+      }
+
+      registerEventListeners() {
+        // Toggle view panels
+        document.getElementById('btn-show-schedule').addEventListener('click', () => {
+          this.switchTab('schedule');
+        });
+        document.getElementById('btn-show-course').addEventListener('click', () => {
+          this.switchTab('course');
+        });
+
+        // Live calculator sliders
+        document.getElementById('input-baseline-pace').addEventListener('input', (e) => {
+          this.updateCalculatedZones();
+          this.renderSchedule(); // Re-render to update dynamic paces on cards
+        });
+        document.getElementById('input-peak-hr').addEventListener('input', (e) => {
+          this.updateCalculatedZones();
+        });
+
+        // Recompute the day/Saturday countdown whenever the app is reopened
+        // (installed PWAs stay alive in the background, so this keeps it fresh).
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) this.updateCountdown();
+        });
+      }
+
+      switchTab(tab) {
+        const schedBtn = document.getElementById('btn-show-schedule');
+        const courseBtn = document.getElementById('btn-show-course');
+        const schedPanel = document.getElementById('panel-schedule');
+        const coursePanel = document.getElementById('panel-course');
+
+        if (tab === 'schedule') {
+          schedBtn.className = "px-4 py-2 text-xs font-semibold rounded-md bg-lime-500 text-slate-950 transition-all";
+          courseBtn.className = "px-4 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-all";
+          schedPanel.classList.remove('hidden');
+          coursePanel.classList.add('hidden');
+        } else {
+          courseBtn.className = "px-4 py-2 text-xs font-semibold rounded-md bg-lime-500 text-slate-950 transition-all";
+          schedBtn.className = "px-4 py-2 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-all";
+          coursePanel.classList.remove('hidden');
+          schedPanel.classList.add('hidden');
+        }
+      }
+
+      updateCountdown() {
+        const raceDate = RACE_DATE;
+        const today = new Date();
+        const diffTime = raceDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffSaturdays = Math.ceil(diffDays / 7);
+
+        document.getElementById('countdown-days').innerText = diffDays > 0 ? diffDays : 0;
+        document.getElementById('countdown-weeks').innerText = diffSaturdays > 0 ? diffSaturdays : 0;
+      }
+
+      // Live Dynamic Pace Formula
+      getCalculatedPaceString(paceVal, paceType) {
+        const formatPace = (sec) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+        
+        switch (paceType) {
+          case 'easy':
+            // Easy Base Pace (+1:30 to +2:00 per mile)
+            return `${formatPace(paceVal + 90)} - ${formatPace(paceVal + 120)} /mi`;
+          case 'interval':
+          case 'hard':
+            // Fast Interval Pace (-45s to -15s per mile)
+            return `${formatPace(paceVal - 45)} - ${formatPace(paceVal - 15)} /mi`;
+          case 'threshold':
+            // Lactate Threshold (-15s to +15s per mile)
+            return `${formatPace(paceVal - 15)} - ${formatPace(paceVal + 15)} /mi`;
+          case 'rolling':
+            // Rolling / Hills Pace (+45s to +75s per mile - adjusted for slope)
+            return `${formatPace(paceVal + 45)} - ${formatPace(paceVal + 75)} /mi`;
+          case 'race':
+            // Course Race Target (+30s to +60s per mile)
+            return `${formatPace(paceVal + 30)} - ${formatPace(paceVal + 60)} /mi`;
+          case 'taper':
+          default:
+            // Taper and Shakeouts (+90s to +120s per mile)
+            return `${formatPace(paceVal + 90)} - ${formatPace(paceVal + 120)} /mi`;
+        }
+      }
+
+      updateCalculatedZones() {
+        const paceVal = parseInt(document.getElementById('input-baseline-pace').value); // in seconds
+        const hrVal = parseInt(document.getElementById('input-peak-hr').value);
+
+        // Update labels
+        const minStr = Math.floor(paceVal / 60);
+        const secStr = String(paceVal % 60).padStart(2, '0');
+        document.getElementById('label-baseline-pace').innerText = `${minStr}:${secStr} /mi`;
+        document.getElementById('label-peak-hr').innerText = `${hrVal} BPM`;
+
+        // Calculate general zones for sidebar quick card
+        document.getElementById('calc-easy-pace').innerText = this.getCalculatedPaceString(paceVal, 'easy');
+        document.getElementById('calc-hard-pace').innerText = this.getCalculatedPaceString(paceVal, 'hard');
+
+        // Calculate HR Zones
+        document.getElementById('calc-easy-hr').innerText = `< ${Math.round(hrVal * 0.79)} BPM`;
+        document.getElementById('calc-hard-hr').innerText = `${Math.round(hrVal * 0.85)} - ${Math.round(hrVal * 0.92)} BPM`;
+      }
+
+      updateProgress() {
+        const total = this.saturdays.length;
+        const done = this.completedWeeks.size;
+        const pct = Math.round((done / total) * 100);
+
+        document.getElementById('completed-stats').innerText = `${done} / ${total} Weeks (${pct}%)`;
+        document.getElementById('overall-progress-bar').style.width = `${pct}%`;
+      }
+
+      renderSchedule() {
+        const container = document.getElementById('workout-list-container');
+        container.innerHTML = '';
+        
+        const currentPaceVal = parseInt(document.getElementById('input-baseline-pace').value);
+
+        this.saturdays.forEach((item) => {
+          const isDone = this.completedWeeks.has(item.week);
+          const phaseColor = this.getPhaseColor(item.week);
+          const weekHasNotes = !!this.userNotes[item.week];
+          
+          // Generate customized dynamic target pace for each specific card
+          const targetPaceStr = this.getCalculatedPaceString(currentPaceVal, item.paceType);
+
+          const workoutCard = document.createElement('div');
+          workoutCard.className = `p-4 rounded-xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+            isDone 
+              ? 'bg-slate-900/40 border-slate-800/60 opacity-75' 
+              : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+          }`;
+
+          workoutCard.innerHTML = `
+            <div class="flex items-start gap-3 flex-1">
+              <button onclick="window.plannerApp.toggleWeek(${item.week})" aria-label="Toggle week ${item.week} completed" title="Mark complete" class="mt-1 focus:outline-none">
+                <div class="w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+                  isDone 
+                    ? 'border-lime-400 bg-lime-500 text-slate-950' 
+                    : 'border-slate-600 hover:border-lime-400 bg-transparent text-transparent'
+                }">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                </div>
+              </button>
+              
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-bold font-heading text-white">Week ${item.week}</span>
+                  <span class="text-[10px] uppercase px-1.5 py-0.5 rounded font-semibold ${phaseColor.bg} ${phaseColor.text}">
+                    ${phaseColor.label}
+                  </span>
+                  <span class="text-xs text-slate-500 font-medium">${item.dateString}</span>
+                  ${weekHasNotes ? '<span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">📝 Note logged</span>' : ''}
+                </div>
+                <h4 class="text-sm font-semibold text-slate-200">
+                  ${item.type} • <span class="text-lime-400">${item.distance}</span>
+                  <span class="mx-2 text-slate-600">|</span>
+                  <span class="text-slate-400 text-xs">Target Pace: <strong class="text-white">${targetPaceStr}</strong></span>
+                </h4>
+                <p class="text-xs text-slate-400 line-clamp-1">${item.focus}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-slate-500 hidden md:inline-block">${item.location}</span>
+              <button onclick="window.plannerApp.openModal(${item.week})" class="px-3.5 py-2 text-xs font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all w-full md:w-auto">
+                Inspect Details
+              </button>
+            </div>
+          `;
+
+          container.appendChild(workoutCard);
+        });
+      }
+
+      getPhaseColor(week) {
+        if (week <= 12) return { bg: 'bg-sky-500/10', text: 'text-sky-400', label: 'Phase 1: Base', border: 'border-sky-500/20' };
+        if (week <= 24) return { bg: 'bg-purple-500/10', text: 'text-purple-400', label: 'Phase 2: Hills Power', border: 'border-purple-500/20' };
+        if (week <= 36) return { bg: 'bg-amber-500/10', text: 'text-amber-400', label: 'Phase 3: Stamina', border: 'border-amber-500/20' };
+        return { bg: 'bg-rose-500/10', text: 'text-rose-400', label: 'Phase 4: Peak Strategy', border: 'border-rose-500/20' };
+      }
+
+      toggleWeek(week) {
+        if (this.completedWeeks.has(week)) {
+          this.completedWeeks.delete(week);
+        } else {
+          this.completedWeeks.add(week);
+        }
+        this.saveToLocalStorage();
+        this.updateProgress();
+        this.renderSchedule();
+      }
+
+      markAll() {
+        this.saturdays.forEach(s => this.completedWeeks.add(s.week));
+        this.saveToLocalStorage();
+        this.updateProgress();
+        this.renderSchedule();
+      }
+
+      resetAll() {
+        this.completedWeeks.clear();
+        this.userNotes = {};
+        this.saveToLocalStorage();
+        this.updateProgress();
+        this.renderSchedule();
+      }
+
+      // Modals Logic
+      openModal(weekNum) {
+        const item = this.saturdays.find(s => s.week === weekNum);
+        if (!item) return;
+
+        const pColor = this.getPhaseColor(item.week);
+        const currentPaceVal = parseInt(document.getElementById('input-baseline-pace').value);
+        const calculatedPace = this.getCalculatedPaceString(currentPaceVal, item.paceType);
+
+        document.getElementById('modal-phase').innerText = pColor.label;
+        document.getElementById('modal-phase').className = `text-xs font-bold uppercase tracking-wider ${pColor.text}`;
+        document.getElementById('modal-week-title').innerText = `Week ${item.week}: ${item.type}`;
+        document.getElementById('modal-distance').innerText = item.distance;
+        document.getElementById('modal-location').innerText = item.location;
+        document.getElementById('modal-pace').innerText = calculatedPace;
+        document.getElementById('modal-focus').innerText = item.focus;
+        document.getElementById('modal-strength-tip').innerText = item.strength;
+        
+        // Stretches bindings
+        document.getElementById('modal-pre-stretches').innerText = item.preRunStretches || "Standard running warm-up: leg swings, light high knees, arm circles.";
+        document.getElementById('modal-gym-stretches').innerText = item.gymStretches || "Perform a foam roller stretch to calves and lower lumbar, followed by a light hamstring stretch.";
+
+        // Load note
+        document.getElementById('modal-notes').value = this.userNotes[weekNum] || '';
+
+        // Hook save button
+        const saveBtn = document.getElementById('modal-btn-save');
+        saveBtn.onclick = () => {
+          const noteText = document.getElementById('modal-notes').value.trim();
+          if (noteText) {
+            this.userNotes[weekNum] = noteText;
+          } else {
+            delete this.userNotes[weekNum];
+          }
+          this.completedWeeks.add(weekNum);
+          this.saveToLocalStorage();
+          this.updateProgress();
+          this.renderSchedule();
+          this.closeModal();
+        };
+
+        document.getElementById('workout-modal').classList.remove('hidden');
+      }
+
+      closeModal() {
+        document.getElementById('workout-modal').classList.add('hidden');
+      }
+
+      // Course Guides Logic
+      showSegmentDetail(num) {
+        this.currentSelectedSegment = num;
+        this.renderCourseDetails();
+      }
+
+      renderCourseDetails() {
+        const container = document.getElementById('course-details-section');
+        container.innerHTML = '';
+
+        // Render selected
+        const seg = SEGMENTS[this.currentSelectedSegment];
+        const highlightCard = document.createElement('div');
+        highlightCard.className = "md:col-span-2 bg-gradient-to-r from-slate-900 to-slate-900 p-6 rounded-2xl border border-lime-500/30 shadow-lg relative overflow-hidden";
+        highlightCard.innerHTML = `
+          <div class="absolute right-0 top-0 w-24 h-24 bg-lime-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="px-2.5 py-1 bg-lime-500/10 text-lime-400 font-bold rounded-lg text-xs uppercase">Selected Sector</span>
+            <span class="text-xs text-slate-500">Cap10K Topography Guide</span>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-2">${seg.title}</h3>
+          <p class="text-sm text-slate-400 mb-4 flex items-center gap-1">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            <strong>Elevation profile:</strong> ${seg.elevation}
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <span class="text-xs uppercase font-bold text-rose-500 tracking-wider flex items-center gap-1.5 mb-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                The walking/Fatigue Trap
+              </span>
+              <p class="text-xs text-slate-300 leading-relaxed">${seg.trap}</p>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <span class="text-xs uppercase font-bold text-sky-400 tracking-wider flex items-center gap-1.5 mb-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                The Non-Stop Run Tactic
+              </span>
+              <p class="text-xs text-slate-300 leading-relaxed">${seg.tactic}</p>
+            </div>
+          </div>
+        `;
+        container.appendChild(highlightCard);
+
+        // Render adjacent segments as smaller cards
+        Object.keys(SEGMENTS).forEach((key) => {
+          const num = parseInt(key);
+          if (num === this.currentSelectedSegment) return;
+          const other = SEGMENTS[num];
+
+          const simpleCard = document.createElement('div');
+          simpleCard.className = "bg-slate-900 border border-slate-800 hover:border-slate-700 p-4 rounded-xl cursor-pointer transition-all flex flex-col justify-between";
+          simpleCard.onclick = () => this.showSegmentDetail(num);
+          simpleCard.innerHTML = `
+            <div>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide">Sector ${num}</h4>
+              <h3 class="text-sm font-bold text-white mt-1 mb-2">${other.title}</h3>
+              <p class="text-xs text-slate-400 line-clamp-2">${other.tactic}</p>
+            </div>
+            <span class="text-[10px] text-lime-400 mt-3 font-semibold flex items-center gap-0.5">
+              Inspect Tactics
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </span>
+          `;
+          container.appendChild(simpleCard);
+        });
+      }
+    }
+
+    // Initialize application on window load
+    window.onload = function() {
+      window.plannerApp = new PlannerApp();
+    };
+  </script>
+
+  <!-- iOS "Add to Home Screen" hint (only shown in Safari, not when installed) -->
+  <div id="ios-install-hint" class="hidden fixed bottom-4 inset-x-4 z-[60] bg-slate-900 border border-lime-500/40 rounded-2xl p-4 shadow-2xl">
+    <div class="flex items-start gap-3">
+      <div class="p-2 bg-lime-500/10 text-lime-400 rounded-xl shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-semibold text-white">Install Hill Slayer</p>
+        <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">
+          Tap the <strong class="text-sky-400">Share</strong> button below, then choose
+          <strong class="text-white">"Add to Home Screen"</strong> to run this like a real app — works offline too.
+        </p>
+      </div>
+      <button onclick="dismissInstallHint()" aria-label="Dismiss install hint" class="text-slate-500 hover:text-white p-1 shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Register the service worker so the plan works offline (e.g. out on a run).
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('service-worker.js').catch(function (err) {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+
+    // Show the iOS install hint only in mobile Safari and only until dismissed/installed.
+    function dismissInstallHint() {
+      var el = document.getElementById('ios-install-hint');
+      if (el) el.classList.add('hidden');
+      try { localStorage.setItem('hillslayer-install-hint-dismissed', '1'); } catch (e) {}
+    }
+    (function () {
+      var ua = window.navigator.userAgent;
+      var isIOS = /iPhone|iPad|iPod/.test(ua) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      var inStandalone = window.navigator.standalone === true ||
+        window.matchMedia('(display-mode: standalone)').matches;
+      var dismissed = false;
+      try { dismissed = localStorage.getItem('hillslayer-install-hint-dismissed') === '1'; } catch (e) {}
+      if (isIOS && !inStandalone && !dismissed) {
+        var el = document.getElementById('ios-install-hint');
+        if (el) el.classList.remove('hidden');
+      }
+    })();
+  </script>
+</body>
+</html>
