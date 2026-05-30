@@ -17,24 +17,22 @@ packaged so it installs on an iPhone home screen and runs full-screen and
 Her progress (completed weeks + notes) is saved on her phone via `localStorage`,
 so it persists between sessions. It is per-device and not synced.
 
-## Getting it onto her iPhone (recommended: free hosting)
+## Live app
 
-An installable PWA must be opened from an `https://` web address. The easiest
-no-account way:
+**https://erivera3507.github.io/cap10k-trainer/**
 
-1. Go to **https://app.netlify.com/drop** in a browser.
-2. Drag this entire `cap10k-app` folder onto the page.
-3. Netlify gives you a public link (e.g. `https://random-name.netlify.app`).
-4. Text/AirDrop that link to your wife.
-5. On her iPhone, she opens the link **in Safari**, taps the **Share** button,
-   then **"Add to Home Screen."**
-6. A "Hill Slayer" icon appears on her home screen. Tapping it launches the app
-   full-screen, no browser bars.
+Hosted free on GitHub Pages from the `main` branch of this repo.
+
+### Getting it onto her iPhone
+
+1. Text/AirDrop her the link above.
+2. She opens it **in Safari** (must be Safari, not Chrome).
+3. Taps the **Share** button → **"Add to Home Screen."**
+4. A "Hill Slayer" icon appears on her home screen. Tapping it launches the app
+   full-screen, with no browser bars.
 
 > Have her open it once **with internet** so the offline cache fills. After that
-> it runs without a connection.
-
-Other equivalent hosts: GitHub Pages, Vercel, Cloudflare Pages.
+> it runs without a connection (e.g. out on a run).
 
 ## Testing locally on this Mac
 
@@ -45,6 +43,12 @@ node serve.js
 
 ## Updating the plan later
 
-Edit `index.html`, then bump `CACHE_VERSION` in `service-worker.js`
-(e.g. `hillslayer-v1` → `hillslayer-v2`) so phones pull the new version.
-Re-upload the folder to the same host.
+1. Edit `index.html`.
+2. Bump `CACHE_VERSION` in `service-worker.js` (e.g. `hillslayer-v2` →
+   `hillslayer-v3`) so installed phones pull the new version.
+3. Commit and push to `main` — GitHub Pages redeploys automatically in a minute
+   or two.
+
+```
+git add -A && git commit -m "Update plan" && git push
+```
